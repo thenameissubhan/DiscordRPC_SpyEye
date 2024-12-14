@@ -1,5 +1,10 @@
-Thank you for downloading SpyEye!
+SpyEye
 
-Please take some time to read more about it and learn how it can benefit you by visiting the link below 🔗:
+Discord RPC tool that seamlessly tracks and displays your PC activities in real-time. Whether you're gaming, coding, or watching movies, SpyEye keeps your friends updated with your latest activities. 
 
-https://docs.google.com/document/d/1vz6IqZGzbNlSzr-i85gwsoK8gTwPYrjc3edw4he1Npw/edit?usp=sharing
+No data theft ☠️
+
+
+Open the SpyEye folder to download the .exe files.
+
+Make sure to read the readme file.
