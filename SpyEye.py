@@ -77,6 +77,7 @@ def load_image_map():
     "rockstargames": "rockstar_icon", # Rockstar Games
     "telegram": "telegram_icon",   # Telegram
     "nvidia app":"nvidia_app_icon", # NVIDIA
+    "copilot": "copilot_icon",   #copilot
     "nvidia overlay":"nvidia_app_icon",  # nvidia overlay
     "calculator":"calculator_icon",  # Calculator
     "photos": "photos_icon",          # Photos
@@ -110,12 +111,12 @@ def extract_domain_name(window_title):
     """
     if "youtube.com" in window_title.lower() or "youtube" in window_title.lower():
         return "YouTube"
-    elif "google.com" in window_title.lower() or "google" in window_title.lower(): 
-        return "Google"
+    elif "gmail.com" in window_title.lower() or "gmail" in window_title.lower(): 
+        return "Gmail"
     elif "reddit.com" in window_title.lower() or "reddit" in window_title.lower() or "r/" in window_title.lower(): 
         return "Reddit"
     elif "twitch.tv" in window_title.lower() or "twitch" in window_title.lower(): 
-        return "twitch"
+        return "twitch"   
     elif "netflix.com" in window_title.lower() or "netflix" in window_title.lower(): 
         return "Netflix"
     return None
@@ -241,9 +242,9 @@ def update_discord_rpc():
                 image_key = "youtube_icon"
                 # Ensure state is within the limit
                 state = state[:128]
-            elif domain_name =="Google":
+            elif domain_name =="Gmail":
                 state = f"Active on |{active_window}"
-                image_key = "google_icon"
+                image_key = "gmail_icon"
                 # Ensure state is within the limit
                 state = state[:128]
             elif domain_name =="twitch":
@@ -255,7 +256,7 @@ def update_discord_rpc():
                 state = f"Active on | {active_window}"
                 image_key = "reddit_icon"               
                 # Ensure state is within the limit
-                state = state[:128]
+                state = state[:128]      
             elif domain_name =="Netflix":
                 state = f"Watching Now | {active_window}"
                 image_key = "netflix_icon"               
@@ -287,7 +288,7 @@ def update_discord_rpc():
                 print(f"Error updating Discord RPC: {e}")
 
         # Sleep to prevent constant high CPU usage
-        time.sleep(0.4)  # Reduced sleep time to 0.4 seconds
+        time.sleep(0.2)  # Reduced sleep time to 0.4 seconds
         
 def add_image_map(new_key, new_value):
     """
