@@ -11,7 +11,7 @@ import requests
 from flask import Flask
 
 # Wait for 30 seconds before starting the rest of the script
-#time.sleep(30)
+time.sleep(30)
 
 IMAGE_MAP_FILE = 'image_map.json'
 
@@ -192,7 +192,7 @@ def update_discord_rpc():
         active_window, process_name = get_active_window_details()
         
         # Initialize buttons variable
-        buttons = [{"label": "By DAHAAHA", "url": "https://steamcommunity.com/id/thenameissubhan"}] # Default button with a valid URL
+        buttons = [{"label": "Use SpyEye", "url": "https://github.com/thenameissubhan/SpyEye_Discord_RPC"}] # Default button with a valid URL
 
         # If no active window is detected, check if we've been idle
         if not active_window.strip():
