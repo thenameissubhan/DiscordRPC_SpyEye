@@ -1,4 +1,7 @@
 from pypresence import Presence
+from domain_extractor import extract_domain_name
+from activity_state import get_activity_state_and_image
+from image_map import load_image_map
 import win32gui
 import win32process
 import psutil
@@ -15,47 +18,7 @@ time.sleep(30)
 CLIENT_ID_FILE = "client_id.json"
 IMAGE_MAP_FILE = "image_map.json"
 DEFAULT_CLIENT_ID = "1314279361582596146"
-IDLE_THRESHOLD = 300  # 5 minutes in seconds
-
-# Default image map
-DEFAULT_IMAGE_MAP = {
-    "msedge": "edge_icon",
-    "chrome": "chrome_icon",
-    "opera": "opera_icon",
-    "brave": "brave_icon",
-    "firefox": "firefox_icon",
-    "notepad": "notepad_icon",
-    "google": "google_icon",
-    "notepad++": "notepad_icon",
-    "discord": "discord_icon",
-    "explorer": "file_explorer_icon",
-    "spotify": "spotify_icon",
-    "code": "vscode_icon",
-    "slack": "slack_icon",
-    "microsoftstore": "store_icon",
-    "settings": "settings_icon",
-    "olk": "outlook_icon",
-    "wmplayer": "media_player_icon",
-    "clipchamp": "clipchamp_icon",
-    "xbox": "xbox_icon",
-    "steamwebhelper": "steam_icon",
-    "epicgameslauncher": "epicgames_icon",
-    "upc": "ubisoft_icon",
-    "searchhost": "search_icon",
-    "rockstargames": "rockstar_icon",
-    "telegram": "telegram_icon",
-    "nvidia app": "nvidia_app_icon",
-    "copilot": "copilot_icon",
-    "nvidia overlay": "nvidia_app_icon",
-    "calculator": "calculator_icon",
-    "photos": "photos_icon",
-    "idle": "idle_icon",
-    "youtube": "youtube_icon",
-    "amazon music": "amazonmusic_icon",
-    "netplwiz": "netplwiz_icon",
-    "taskmgr": "taskmgr_icon",
-    "unknown": "default_icon",
-}
+IDLE_THRESHOLD = 10800  # 3 hours idle timeout
 
 
 def set_high_priority():
@@ -79,12 +42,15 @@ def save_client_id(client_id):
         json.dump({"client_id": client_id}, f)
 
 
+IMAGE_MAP_FILE = "image_map.json"
+
+
 def load_image_map():
-    """Load the image map from a JSON file or return the default."""
+    """Load the image map from a JSON file or return an empty dict."""
     if os.path.exists(IMAGE_MAP_FILE):
         with open(IMAGE_MAP_FILE, "r") as f:
             return json.load(f)
-    return DEFAULT_IMAGE_MAP
+    return {}  # return empty if file doesn't exist
 
 
 def save_image_map(image_map):
@@ -101,24 +67,6 @@ def get_client_id():
 def get_idle_time():
     """Calculate the time since last user input in seconds."""
     return (win32api.GetTickCount() - win32api.GetLastInputInfo()) / 1000.0
-
-
-def extract_domain_name(window_title):
-    """
-    Extract the domain name from the window title if it is a known web service.
-    """
-    title = window_title.lower()
-    if "youtube.com" in title or "youtube" in title:
-        return "YouTube"
-    if "gmail.com" in title or "gmail" in title:
-        return "Gmail"
-    if "reddit.com" in title or "reddit" in title or "r/" in title:
-        return "Reddit"
-    if "twitch.tv" in title or "twitch" in title:
-        return "Twitch"
-    if "netflix.com" in title or "netflix" in title:
-        return "Netflix"
-    return None
 
 
 def get_active_window_details():
@@ -171,6 +119,8 @@ def update_discord_rpc():
                         details="No activity",
                         large_image="idle_icon",
                         large_text="IDLE",
+                        small_image="spyeye",
+                        small_text="SpyEye Active",
                         start=time.time(),
                         buttons=buttons,
                     )
@@ -202,41 +152,19 @@ def update_discord_rpc():
                 last_sent_process = proc_name
                 last_sent_title = active_title
 
-                # Choose an icon based on domain if it’s a browser tab
-                domain = extract_domain_name(active_title)
-                image_map = load_image_map()
-
-                if domain == "YouTube":
-                    state = f"Watching | {active_title}"
-                    image_key = "youtube_icon"
-                elif domain == "Gmail":
-                    state = f"Reading | {active_title}"
-                    image_key = "gmail_icon"
-                elif domain == "Reddit":
-                    state = f"Browsing | {active_title}"
-                    image_key = "reddit_icon"
-                elif domain == "Twitch":
-                    state = f"Watching | {active_title}"
-                    image_key = "twitch_icon"
-                elif domain == "Netflix":
-                    state = f"Watching | {active_title}"
-                    image_key = "netflix_icon"
-                else:
-                    # Generic case
-                    state = f"Active on | {active_title}"
-                    image_key = image_map.get(proc_name, "default_icon")
-
-                # Enforce Discord’s 128‑char limit
-                if len(state) > 128:
-                    state = state[:125] + "..."
+                state, details, image_key = get_activity_state_and_image(
+                    proc_name, active_title
+                )
 
                 # Send the update
                 try:
                     rpc.update(
                         state=state,
-                        details=f"Using {proc_name.capitalize()}",
+                        details=details,
                         large_image=image_key,
                         large_text=proc_name.capitalize(),
+                        small_image="spyeye",
+                        small_text="SpyEye Active",
                         start=time.time(),
                         buttons=buttons,
                     )
