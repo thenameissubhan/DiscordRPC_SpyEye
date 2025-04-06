@@ -97,35 +97,34 @@ def get_idle_time():
 
 def extract_domain_name(window_title):
     """
-    Extract the domain name from the window title if it is a YouTube URL.
+    Extract the domain name from the window title if it is a known web service.
     """
-    if "youtube.com" in window_title.lower() or "youtube" in window_title.lower():
+    title = window_title.lower()
+    if "youtube.com" in title or "youtube" in title:
         return "YouTube"
-    elif "gmail.com" in window_title.lower() or "gmail" in window_title.lower(): 
+    if "gmail.com" in title or "gmail" in title:
         return "Gmail"
-    elif "reddit.com" in window_title.lower() or "reddit" in window_title.lower() or "r/" in window_title.lower(): 
+    if "reddit.com" in title or "reddit" in title or "r/" in title:
         return "Reddit"
-    elif "twitch.tv" in window_title.lower() or "twitch" in window_title.lower(): 
-        return "twitch"   
-    elif "netflix.com" in window_title.lower() or "netflix" in window_title.lower(): 
+    if "twitch.tv" in title or "twitch" in title:
+        return "Twitch"
+    if "netflix.com" in title or "netflix" in title:
         return "Netflix"
     return None
 
 def get_active_window_details():
     """Get the title and process name of the active window."""
     try:
-        window_handle = win32gui.GetForegroundWindow()
-        if not window_handle:
+        hwnd = win32gui.GetForegroundWindow()
+        if not hwnd:
             return "Unknown Window", "unknown"
-        _, process_id = win32process.GetWindowThreadProcessId(window_handle)
-        process = psutil.Process(process_id)
-        process_name = process.name().lower().replace(".exe", "")
-        window_title = win32gui.GetWindowText(window_handle) or "Untitled"
-        return window_title, process_name
-    except (psutil.NoSuchProcess, Exception) as e:
-        print(f"Error getting window details: {e}")
+        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+        proc = psutil.Process(pid)
+        pname = proc.name().lower().replace(".exe", "")
+        title = win32gui.GetWindowText(hwnd) or "Untitled"
+        return title, pname
+    except Exception:
         return "Unknown Window", "unknown"
-
 
 def update_discord_rpc():
     """Main loop to update Discord Rich Presence based on user activity."""
@@ -138,15 +137,18 @@ def update_discord_rpc():
         print(f"Error connecting RPC: {e}")
         return
 
-    last_process = None
-    last_window_title = None
+    last_sent_process = None
+    last_sent_title = None
+    last_valid_process = None
+    last_valid_title = None
     was_idle = False
 
     while True:
-        idle_time = get_idle_time()
+        idle = get_idle_time()
         buttons = [{"label": "Use SpyEye", "url": "https://github.com/thenameissubhan/SpyEye_Discord_RPC"}]
 
-        if idle_time > IDLE_THRESHOLD:
+        # IDLE handling
+        if idle > IDLE_THRESHOLD:
             if not was_idle:
                 try:
                     rpc.update(
@@ -162,51 +164,66 @@ def update_discord_rpc():
                 except Exception as e:
                     print(f"Error setting IDLE status: {e}")
         else:
-            try:
-                active_window, process_name = get_active_window_details()
-                
-                if was_idle or process_name != last_process or active_window != last_window_title:
-                    was_idle = False
-                    last_process = process_name
-                    last_window_title = active_window
+            # Get current window
+            active_title, proc_name = get_active_window_details()
 
-                    image_map = load_image_map()
-                    domain_name = extract_domain_name(active_window)
-                    
-                    if domain_name == "YouTube":
-                        state = f"Currently Watching | {active_window}"
-                        if len(state) > 128:
-                         state = state[:128 - len("... | **YouTube** |")]
-                        image_key = "youtube_icon"
-                        state = state[:128]
-                    elif domain_name == "Gmail":
-                        state = f"Active on | {active_window}"[:128]
-                        image_key = "gmail_icon"
-                    elif domain_name == "Reddit":
-                        state = f"Active on | {active_window}"[:128]
-                        image_key = "reddit_icon"
-                    elif domain_name == "Twitch":
-                        state = f"Currently Watching | {active_window}"[:128]
-                        image_key = "twitch_icon"
-                    elif domain_name == "Netflix":
-                        state = f"Watching Now | {active_window}"[:128]
-                        image_key = "netflix_icon"
-                    else:
-                        state = f"Active on | {active_window[:128]}"  # Limit to 128 characters
-                        state = state[:128]  # Ensure state is within the limit
-                        image_key = image_map.get(process_name, "default_icon")
+            # If this is a “desktop” or unknown window, fall back to the last valid app
+            if proc_name == "unknown" or active_title == "Unknown Window":
+                if last_valid_process and last_valid_title:
+                    proc_name = last_valid_process
+                    active_title = last_valid_title
+            else:
+                # Otherwise update our “last valid” tracker
+                last_valid_process = proc_name
+                last_valid_title = active_title
 
+            # Only send a new update if something actually changed (or we were idle)
+            if was_idle or proc_name != last_sent_process or active_title != last_sent_title:
+                was_idle = False
+                last_sent_process = proc_name
+                last_sent_title = active_title
+
+                # Choose an icon based on domain if it’s a browser tab
+                domain = extract_domain_name(active_title)
+                image_map = load_image_map()
+
+                if domain == "YouTube":
+                    state = f"Watching | {active_title}"
+                    image_key = "youtube_icon"
+                elif domain == "Gmail":
+                    state = f"Reading | {active_title}"
+                    image_key = "gmail_icon"
+                elif domain == "Reddit":
+                    state = f"Browsing | {active_title}"
+                    image_key = "reddit_icon"
+                elif domain == "Twitch":
+                    state = f"Watching | {active_title}"
+                    image_key = "twitch_icon"
+                elif domain == "Netflix":
+                    state = f"Watching | {active_title}"
+                    image_key = "netflix_icon"
+                else:
+                    # Generic case
+                    state = f"Active on | {active_title}"
+                    image_key = image_map.get(proc_name, "default_icon")
+
+                # Enforce Discord’s 128‑char limit
+                if len(state) > 128:
+                    state = state[:125] + "..."
+
+                # Send the update
+                try:
                     rpc.update(
                         state=state,
-                        details=f"Using {process_name.capitalize()}",
+                        details=f"Using {proc_name.capitalize()}",
                         large_image=image_key,
-                        large_text=process_name.capitalize(),
+                        large_text=proc_name.capitalize(),
                         start=time.time(),
                         buttons=buttons
                     )
-                    print(f"Window: {active_window} | Process: {process_name} | State: {state}")
-            except Exception as e:
-                print(f"Error in RPC update: {e}")
+                    print(f"Updated → {proc_name}: {active_title}")
+                except Exception as e:
+                    print(f"Error in RPC update: {e}")
 
         time.sleep(0.2)  # Polling interval
 
@@ -224,20 +241,17 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == '--update-client-id':
             if len(sys.argv) > 2:
-                new_client_id = sys.argv[2]
-                save_client_id(new_client_id)
+                save_client_id(sys.argv[2])
                 print("Client ID updated successfully.")
             else:
-                print("Error: No client ID provided. Usage: finall.exe --update-client-id <new_client_id>")
+                print("Error: No client ID provided.")
             sys.exit(0)
         elif sys.argv[1] == '--add-image-map':
             if len(sys.argv) > 3:
-                new_key = sys.argv[2]
-                new_value = sys.argv[3]
-                add_image_map(new_key, new_value)
+                add_image_map(sys.argv[2], sys.argv[3])
             else:
-                print("Error: Incorrect usage. Usage: finall.exe --add-image-map <new_key> <new_value>")
+                print("Error: Usage: --add-image-map <key> <value>")
             sys.exit(0)
-    
+
     set_high_priority()
     update_discord_rpc()
