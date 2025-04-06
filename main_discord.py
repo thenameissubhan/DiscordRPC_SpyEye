@@ -12,9 +12,9 @@ import win32api
 time.sleep(30)
 
 # Constants
-CLIENT_ID_FILE = 'client_id.json'
-IMAGE_MAP_FILE = 'image_map.json'
-DEFAULT_CLIENT_ID = '1314279361582596146'
+CLIENT_ID_FILE = "client_id.json"
+IMAGE_MAP_FILE = "image_map.json"
+DEFAULT_CLIENT_ID = "1314279361582596146"
 IDLE_THRESHOLD = 300  # 5 minutes in seconds
 
 # Default image map
@@ -54,46 +54,54 @@ DEFAULT_IMAGE_MAP = {
     "amazon music": "amazonmusic_icon",
     "netplwiz": "netplwiz_icon",
     "taskmgr": "taskmgr_icon",
-    "unknown": "default_icon"
+    "unknown": "default_icon",
 }
+
 
 def set_high_priority():
     """Set the script process to high priority."""
     p = psutil.Process(os.getpid())
     p.nice(psutil.HIGH_PRIORITY_CLASS)
 
+
 def load_client_id():
     """Load the Discord client ID from a JSON file or return the default."""
     if os.path.exists(CLIENT_ID_FILE):
-        with open(CLIENT_ID_FILE, 'r') as f:
+        with open(CLIENT_ID_FILE, "r") as f:
             data = json.load(f)
-            return data.get('client_id', DEFAULT_CLIENT_ID)
+            return data.get("client_id", DEFAULT_CLIENT_ID)
     return DEFAULT_CLIENT_ID
+
 
 def save_client_id(client_id):
     """Save a new client ID to the JSON file."""
-    with open(CLIENT_ID_FILE, 'w') as f:
-        json.dump({'client_id': client_id}, f)
+    with open(CLIENT_ID_FILE, "w") as f:
+        json.dump({"client_id": client_id}, f)
+
 
 def load_image_map():
     """Load the image map from a JSON file or return the default."""
     if os.path.exists(IMAGE_MAP_FILE):
-        with open(IMAGE_MAP_FILE, 'r') as f:
+        with open(IMAGE_MAP_FILE, "r") as f:
             return json.load(f)
     return DEFAULT_IMAGE_MAP
 
+
 def save_image_map(image_map):
     """Save the updated image map to the JSON file."""
-    with open(IMAGE_MAP_FILE, 'w') as f:
+    with open(IMAGE_MAP_FILE, "w") as f:
         json.dump(image_map, f, indent=4)
+
 
 def get_client_id():
     """Retrieve the current client ID."""
     return load_client_id()
 
+
 def get_idle_time():
     """Calculate the time since last user input in seconds."""
     return (win32api.GetTickCount() - win32api.GetLastInputInfo()) / 1000.0
+
 
 def extract_domain_name(window_title):
     """
@@ -112,6 +120,7 @@ def extract_domain_name(window_title):
         return "Netflix"
     return None
 
+
 def get_active_window_details():
     """Get the title and process name of the active window."""
     try:
@@ -125,6 +134,7 @@ def get_active_window_details():
         return title, pname
     except Exception:
         return "Unknown Window", "unknown"
+
 
 def update_discord_rpc():
     """Main loop to update Discord Rich Presence based on user activity."""
@@ -145,7 +155,12 @@ def update_discord_rpc():
 
     while True:
         idle = get_idle_time()
-        buttons = [{"label": "Use SpyEye", "url": "https://github.com/thenameissubhan/SpyEye_Discord_RPC"}]
+        buttons = [
+            {
+                "label": "Use SpyEye",
+                "url": "https://github.com/thenameissubhan/SpyEye_Discord_RPC",
+            }
+        ]
 
         # IDLE handling
         if idle > IDLE_THRESHOLD:
@@ -157,7 +172,7 @@ def update_discord_rpc():
                         large_image="idle_icon",
                         large_text="IDLE",
                         start=time.time(),
-                        buttons=buttons
+                        buttons=buttons,
                     )
                     print("Status: IDLE")
                     was_idle = True
@@ -178,7 +193,11 @@ def update_discord_rpc():
                 last_valid_title = active_title
 
             # Only send a new update if something actually changed (or we were idle)
-            if was_idle or proc_name != last_sent_process or active_title != last_sent_title:
+            if (
+                was_idle
+                or proc_name != last_sent_process
+                or active_title != last_sent_title
+            ):
                 was_idle = False
                 last_sent_process = proc_name
                 last_sent_title = active_title
@@ -219,13 +238,14 @@ def update_discord_rpc():
                         large_image=image_key,
                         large_text=proc_name.capitalize(),
                         start=time.time(),
-                        buttons=buttons
+                        buttons=buttons,
                     )
                     print(f"Updated → {proc_name}: {active_title}")
                 except Exception as e:
                     print(f"Error in RPC update: {e}")
 
         time.sleep(0.2)  # Polling interval
+
 
 def add_image_map(new_key, new_value):
     """Add a new entry to the image map."""
@@ -237,16 +257,17 @@ def add_image_map(new_key, new_value):
     save_image_map(image_map)
     print(f"Image map entry '{new_key}: {new_value}' added successfully.")
 
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        if sys.argv[1] == '--update-client-id':
+        if sys.argv[1] == "--update-client-id":
             if len(sys.argv) > 2:
                 save_client_id(sys.argv[2])
                 print("Client ID updated successfully.")
             else:
                 print("Error: No client ID provided.")
             sys.exit(0)
-        elif sys.argv[1] == '--add-image-map':
+        elif sys.argv[1] == "--add-image-map":
             if len(sys.argv) > 3:
                 add_image_map(sys.argv[2], sys.argv[3])
             else:

@@ -2,7 +2,7 @@
 setlocal
 
 :: Path to your Python script
-set "pythonScript=D:\SpyEye\SpyEye.py"
+set "pythonScript=D:\SpyEye\main_discord.py"
 
 :: Path to your pythonw.exe
 set "pythonExe=C:\Users\thena\AppData\Local\Programs\Python\Python313\pythonw.exe"

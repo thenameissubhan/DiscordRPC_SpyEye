@@ -11,7 +11,7 @@ import requests
 from flask import Flask
 
 # Wait for 30 seconds before starting the rest of the script
-time.sleep(30)
+#time.sleep(30)
 
 IMAGE_MAP_FILE = 'image_map.json'
 
@@ -238,7 +238,7 @@ def update_discord_rpc():
             if domain_name == "YouTube":
                 state = f"Currently Watching | {active_window}"
                 if len(state) > 128:
-                    state = state[:128 - len("... | **YouTube** |")]
+                 state = state[:128 - len("... | **YouTube** |")]
                 image_key = "youtube_icon"
                 # Ensure state is within the limit
                 state = state[:128]
