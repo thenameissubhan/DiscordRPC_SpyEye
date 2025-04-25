@@ -1,0 +1,31 @@
+# UTF-8
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(0, 9, 1, 1),
+    prodvers=(0, 9, 1, 1),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x4,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo([
+      StringTable(
+        '040904B0',
+        [
+          StringStruct('CompanyName', 'DAHAAHA'),
+          StringStruct('FileDescription', "SpyEye Discord RPC tool that seamlessly tracks and displays your PC activities in real-time."),
+          StringStruct('FileVersion', '0.9.1.1'),
+          StringStruct('InternalName', 'SpyEyeConsole'),
+          StringStruct('LegalCopyright', '© thenameissubhan'),
+          StringStruct('OriginalFilename', 'SpyEyeConsole.exe'),
+          StringStruct('ProductName', 'SpyEyeConsole'),
+          StringStruct('ProductVersion', '0.9.1.1')
+        ]
+      )
+    ]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)
