@@ -1,20 +1,103 @@
-The Discord RPC that every user and gamer wants — this is the one that fulfills almost all requirements and is made with zero errors after testing each functionality multiple times.
 
-Quick tour of SpyEye and SpyEye v2: Both versions are the same, but the v2 version is more advanced in terms of features.
+# SpyEye
 
-How does SpyEye work?
-It tracks every movement you're making on your PC in real time.
+[![Discord](https://img.shields.io/badge/Discord-Status-blue.svg)]()
+[![Version](https://img.shields.io/badge/version-v0.9.0.3-yellowgreen.svg)]()
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)]()
 
-SpyEye v2
-![photo_2_2025-04-26_03-17-15](https://github.com/user-attachments/assets/5f5d05f4-e84f-4858-8c11-4e1ebb48950e)
-![photo_1_2025-04-26_03-17-15](https://github.com/user-attachments/assets/19ce8c66-5dea-489a-804d-4556c0b3a0c6)
-![photo_6_2025-04-26_03-17-15](https://github.com/user-attachments/assets/97977248-aedd-47d4-ad19-5d10748161c3)
-![photo_5_2025-04-26_03-17-15](https://github.com/user-attachments/assets/71252f82-6304-44c8-b632-898355726e78)
-![photo_4_2025-04-26_03-17-15](https://github.com/user-attachments/assets/bc559886-d464-477c-9b93-522bfe58bab8)
-![photo_3_2025-04-26_03-17-15](https://github.com/user-attachments/assets/8ebf766d-6a14-4f3e-bf00-a8d924735afd)
+> **SpyEye** — A Discord Rich Presence application that displays *authorized* system and gaming activity as rich status on Discord.  
+> **Important:** Use ONLY on devices you own or administer and with explicit consent. This project is intended for personal use, streaming/game-status display, and development — not covert surveillance.
 
-Make sure to read this:
+---
+
+## Quick Overview
+
+SpyEye focuses on powerful features and a seamless user experience for showing activity in Discord Rich Presence. It summarizes authorized application and gaming state and forwards *summarized* notifications to a remote endpoint you control (optional).
+
+---
+
+## The SpyEye Journey: A Quick Tour of V1, V2, and V3
+
+### V1 — The Foundation
+- **Two-Part System:** V1 shipped as a background executable (`SpyEye.exe`) plus a separate monitor console (`SpyEyeConsole.exe`) for local observation.
+- **Basic Presence:** Provided Discord Rich Presence updates and simple activity icons.
+
+### V2 — Enhanced and Streamlined
+- **Single Executable:** Consolidated into one all-in-one executable (`SpyEye_v2.exe`) for easier deployment.
+- **Advanced Logging:** Introduced structured logs: `spyeye_error.log` and `spyeye_usage.log`.
+- **GPU Monitoring:** Detects active Steam games and reports GPU usage and GPU temperature (for diagnostics and streaming overlays).
+
+### V3 — Real-Time & Connected
+- **Remote Notifications (Optional):** Optional integration to send summarized activity logs to a messaging bot (e.g., Telegram) you control for remote personal monitoring or stream overlays.
+- **Privacy-by-Design:** All remote features require explicit configuration and authentication.
+
+---
+
+## Features
+- Discord Rich Presence integration for games and apps you authorize.
+- Optional local logging for diagnostics (`spyeye_error.log`, `spyeye_usage.log`).
+- GPU detection and telemetry for supported titles (useful for stream overlays).
+- Optional remote webhook/bot forwarding for personal notifications (configurable).
+- Small footprint, designed for personal/dev use and streaming setups.
+
+---
+
+## Screenshots — SpyEye V2 in Action
+
+Below are example screenshots showing the UI and Discord presence. (Click to view full size.)
+
+<p align="center">
+  <a href="https://github.com/user-attachments/assets/5f5d05f4-e84f-4858-8c11-4e1ebb48950e">
+    <img src="https://github.com/user-attachments/assets/5f5d05f4-e84f-4858-8c11-4e1ebb48950e" alt="screenshot1" width="300" style="margin:4px">
+  </a>
+  <a href="https://github.com/user-attachments/assets/19ce8c66-5dea-489a-804d-4556c0b3a0c6">
+    <img src="https://github.com/user-attachments/assets/19ce8c66-5dea-489a-804d-4556c0b3a0c6" alt="screenshot2" width="300" style="margin:4px">
+  </a>
+  <a href="https://github.com/user-attachments/assets/97977248-aedd-47d4-ad19-5d10748161c3">
+    <img src="https://github.com/user-attachments/assets/97977248-aedd-47d4-ad19-5d10748161c3" alt="screenshot3" width="300" style="margin:4px">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/user-attachments/assets/71252f82-6304-44c8-b632-898355726e78">
+    <img src="https://github.com/user-attachments/assets/71252f82-6304-44c8-b632-898355726e78" alt="screenshot4" width="300" style="margin:4px">
+  </a>
+  <a href="https://github.com/user-attachments/assets/bc559886-d464-477c-9b93-522bfe58bab8">
+    <img src="https://github.com/user-attachments/assets/bc559886-d464-477c-9b93-522bfe58bab8" alt="screenshot5" width="300" style="margin:4px">
+  </a>
+  <a href="https://github.com/user-attachments/assets/8ebf766d-6a14-4f3e-bf00-a8d924735afd">
+    <img src="https://github.com/user-attachments/assets/8ebf766d-6a14-4f3e-bf00-a8d924735afd" alt="screenshot6" width="300" style="margin:4px">
+  </a>
+</p>
+
+---
+
+## Documentation
+Full documentation:  
 https://docs.google.com/document/d/1vz6IqZGzbNlSzr-i85gwsoK8gTwPYrjc3edw4he1Npw/edit?usp=sharing
 
+---
 
+## Usage (Quick Start)
+1. Download the latest release from this repository's Releases page.
+2. Place `SpyEye_v2.exe` in a folder you control.
+3. Configure `config.json` (see documentation) to enable features you want.
+4. Run the executable on machines you own/administer.
+
+Example (Windows PowerShell):
+```powershell
+.\SpyEye_v2.exe
+```
+
+---
+
+## Privacy & Safety
+- **Only run SpyEye on devices you own or are authorized to monitor.**
+- **Do not use for covert monitoring.** Always obtain consent from users.
+- Protect log files and any forwarded data. Use secure tokens for remote integrations.
+
+---
+
+## License
+Released under the **MIT License**.
 
