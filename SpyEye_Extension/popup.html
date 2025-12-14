@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Current Tab's Info</title>
+    <script src="popup.js"></script>
+    <style>
+      html {
+        min-width: 280px;
+        background-color: #333333;
+        border-left: 2px solid #FFFFFF;
+        border-right: 2px solid #FFFFFF;
+        color: #F2F2F2;
+        font-family: sans-serif;
+      }
+      p {
+        margin: 5px 0;
+        padding: 0 10px;
+        word-wrap: break-word; /* Ensure long URLs don't overflow */
+      }
+      b {
+        color: #90ee90; /* Light green color for labels */
+      }
+      h1 {
+        font-size: 1.2em;
+        padding: 5px 10px;
+        margin: 0;
+        border-bottom: 1px solid #555;
+      }
+      /* Download button styles are removed */
+    </style>
+  </head>
+  <body>
+    <h1>Current Tab's Info</h1>
+    <div>
+      <p><b>Favicon: </b><img src="" id="favicon" style="width: 16px; height: 16px; vertical-align: middle;"></p>
+      <p><b>Title: </b><span id="title"></span></p>
+      <p><b>URL: </b><span id="url"></span></p>
+      <p><b>Domain: </b><span id="domain"></span></p>
+      <p><b>Incognito Mode: </b><span id="incognito"></span></p>
+      <p><b>Tab Number in Current Window: </b><span id="tab_num"></span></p>
+      <p><b>Loading Status: </b><span id="loading"></span></p>
+    </div>
+    <!-- Information note about automatic saving -->
+  </body>
+</html>
