@@ -1,10 +1,6 @@
 
 # SpyEye
 
-[![Discord](https://img.shields.io/badge/Discord-Status-blue.svg)]()
-[![Version](https://img.shields.io/badge/version-v0.9.0.3-yellowgreen.svg)]()
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)]()
-
 > **SpyEye** — A Discord Rich Presence application that displays *authorized* system and gaming activity as rich status on Discord.  
 > **Important:** Use ONLY on devices you own or administer and with explicit consent. This project is intended for personal use, streaming/game-status display, and development — not covert surveillance.
 
@@ -78,26 +74,10 @@ https://docs.google.com/document/d/1vz6IqZGzbNlSzr-i85gwsoK8gTwPYrjc3edw4he1Npw/
 
 ---
 
-## Usage (Quick Start)
-1. Download the latest release from this repository's Releases page.
-2. Place `SpyEye_v2.exe` in a folder you control.
-3. Configure `config.json` (see documentation) to enable features you want.
-4. Run the executable on machines you own/administer.
-
-Example (Windows PowerShell):
-```powershell
-.\SpyEye_v2.exe
-```
-
----
-
 ## Privacy & Safety
 - **Only run SpyEye on devices you own or are authorized to monitor.**
 - **Do not use for covert monitoring.** Always obtain consent from users.
 - Protect log files and any forwarded data. Use secure tokens for remote integrations.
 
 ---
-
-## License
-Released under the **MIT License**.
 
