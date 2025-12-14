@@ -1,9 +1,13 @@
-# 👁️ SpyEye — Discord Rich Presence Enhancer
+<p align="center">
+</p><img width="128" height="128" alt="icon128" src="https://github.com/user-attachments/assets/4e5efc5c-ade7-41c1-a6b0-5aed2fdbc2de" />
 
-**SpyEye** is a high performance Discord Rich Presence application designed to display authorized system, application, and gaming activity as a dynamic, real-time Discord status.
+
+# SpyEye Discord Rich Presence
+
+**SpyEye** is a high-performance Discord Rich Presence application designed to display authorized system, application, and gaming activity as a dynamic, real-time Discord status.
 
 ## Security Notice
-Use this software only on devices you own or administer, and only with explicit consent. SpyEye is intended strictly for personal use, development, activity visualization, and streaming not covert monitoring.
+Use this software only on devices you own or administer, and only with explicit consent. SpyEye is intended strictly for personal use, development, activity visualization, and streaming—not covert monitoring.
 
 ---
 
@@ -74,6 +78,5 @@ https://docs.google.com/document/d/1vz6IqZGzbNlSzr-i85gwsoK8gTwPYrjc3edw4he1Npw/
 ## 🔒 Privacy & Safety
 - Only use on devices you own or have explicit permission to monitor
 - Not intended for covert monitoring
-- Secure all tokens and logs
-- Remote integration is always opt-in
+
 
