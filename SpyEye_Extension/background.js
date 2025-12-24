@@ -69,8 +69,9 @@ function extractDomainName(url) {
 
 /**
  * Sends the current domain, incognito status, ID, URL AND FAVICON to the Python application.
+ * UPDATED: Now accepts windowId to create a distinct session for every window.
  */
-function sendToPython(domain, isIncognito, title, url, favIconUrl) {
+function sendToPython(domain, isIncognito, title, url, favIconUrl, windowId) {
     // SECURITY FIX: If Incognito, NEVER send the actual domain or URL to Python.
     const safeDomain = isIncognito ? "N/A" : domain;
     const safeUrl = isIncognito ? "N/A" : url;
@@ -79,16 +80,22 @@ function sendToPython(domain, isIncognito, title, url, favIconUrl) {
 
     // Get the persistent ID before sending
     getInstanceId((id) => {
+        // --- CRITICAL FIX: UNIQUE SESSION PER WINDOW ---
+        // We append the windowId to the instanceId. 
+        // This ensures the Normal Window (ID-1) and Incognito Window (ID-2) 
+        // are treated as separate sessions by the Python server.
+        const distinctId = `${id}-${windowId}`;
+
         fetch(PYTHON_SERVER_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ 
-                id: id,             // Uses the persistent ID now
+                id: distinctId,     // Sends the unique ID (Instance + Window)
                 title: title,       // Current Tab Title (for matching)
                 domain: safeDomain,
-                incognito: isIncognito,
+                incognito: isIncognito, // TRUSTED FLAG
                 url: safeUrl,       // Sends the URL for the button
                 favicon: safeFavicon // Sends the dynamic favicon
             })
@@ -104,19 +111,24 @@ function sendToPython(domain, isIncognito, title, url, favIconUrl) {
 function updateHistory(tab) {
     if (!tab) return;
 
-    // --- NOISE FILTER ---
-    // If the tab is just "loading" and the URL hasn't changed (it's empty or same),
-    // DO NOT send an update. This prevents sending "N/A" favicons during refresh.
-    if (tab.status === 'loading' && !tab.url) return;
-
     const url = tab.url || '';
     const title = tab.title || '';
     const favIconUrl = tab.favIconUrl || ''; // Extract favicon
     const domain = extractDomainName(url);
     const isIncognito = tab.incognito; 
+    const windowId = tab.windowId; // Get the Window ID
     
-    // Send to Python immediately with the unique ID, URL, and Favicon
-    sendToPython(domain, isIncognito, title, url, favIconUrl);
+    // --- CRITICAL FIX ---
+    // Send to Python IMMEDIATELY with the Window ID.
+    // We do NOT check for 'loading' status here. If the user focuses a "New Tab",
+    // we must tell Python "Incognito is FALSE" right now.
+    sendToPython(domain, isIncognito, title, url, favIconUrl, windowId);
+
+    // --- HISTORY STORAGE LOGIC ---
+    // Now we apply the noise filter only for saving to local history (storage).
+    
+    // If the tab is just "loading" and the URL hasn't changed (it's empty or same), return.
+    if (tab.status === 'loading' && !tab.url) return;
 
     // Don't save history if it's 'N/A' or Incognito (Privacy!)
     if (domain === 'N/A' || isIncognito) return; 
@@ -158,8 +170,7 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
         if (chrome.runtime.lastError) return;
         handleTabChange(tab);
         
-        // FIX: Retry getting tab info shortly after switch. 
-        // Chrome sometimes reports missing favicon immediately upon switch.
+        // Retry mechanism for reliable favicon fetching
         setTimeout(() => {
             chrome.tabs.get(activeInfo.tabId, (retryTab) => {
                 if (chrome.runtime.lastError) return;
@@ -171,34 +182,21 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 
 // Listener 2: Fired when a tab is updated (Navigating within a tab, Title changes, Loading finishes)
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    // Listen for 'title', 'url', OR 'favIconUrl' changes specifically. 
-    // This fixes the issue where the icon doesn't update until tab switch.
-    
-    // OPTIMIZATION: If status is loading, and we don't have a URL, ignore it.
-    // This reduces the 'blink' effect where icon disappears.
-    if (changeInfo.status === 'loading' && !changeInfo.url) {
-        return;
-    }
-
     if (tab.active && (changeInfo.url || changeInfo.status === 'complete' || changeInfo.title || changeInfo.favIconUrl)) {
         handleTabChange(tab);
     }
 
-    // FIX: Some sites load favicons late via JS (SPAs) or after the 'complete' event.
-    // We schedule delayed checks to ensure we catch the icon even if it loads late.
+    // Delayed checks for late-loading favicons
     if (tab.active && changeInfo.status === 'complete') {
-        // First check after 1.5 seconds
         setTimeout(() => {
             chrome.tabs.get(tabId, (updatedTab) => {
                 if (chrome.runtime.lastError) return;
-                // Only send if it's still the active tab to prevent flickering/noise
                 if (updatedTab.active) {
                     handleTabChange(updatedTab);
                 }
             });
         }, 1500);
 
-        // Second check after 3 seconds (for slower sites)
         setTimeout(() => {
             chrome.tabs.get(tabId, (updatedTab) => {
                 if (chrome.runtime.lastError) return;
@@ -213,10 +211,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // Listener 3: Fired when the WINDOW gains focus
 chrome.windows.onFocusChanged.addListener((windowId) => {
     if (windowId !== chrome.windows.WINDOW_ID_NONE) {
-        // Immediate check
+        // Immediate check of the active tab in the NEWLY focused window
         chrome.tabs.query({ active: true, windowId: windowId }, (tabs) => {
             if (chrome.runtime.lastError) return;
             if (tabs && tabs.length > 0) {
+                // This will force sendToPython to run with the attributes of the Focused Window's tab
                 handleTabChange(tabs[0]);
             }
         });
